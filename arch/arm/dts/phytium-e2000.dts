@@ -1,0 +1,503 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * dts file for Phytium E2000 SoC
+ *
+ * Copyright (C) 2022, Phytium Technology Co., Ltd.
+ */
+/dts-v1/;
+
+/ {
+	model = "Phytium E2000 Development Board";
+    compatible = "phytium,e2000";
+    #address-cells = <2>;
+    #size-cells = <2>;
+
+	aliases {
+		spi0 = &spi0;
+		spi1 = &spi1;
+		spi2 = &spi2;
+		spi3 = &spi3;
+	};
+
+	pcie: pcie@40000000 {
+		compatible = "phytium,pcie-host-1.0";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		reg = <0x0 0x40000000 0x0 0x10000000>;
+		bus-range = <0x0 0xff>;
+		ranges = <0x01000000 0x00 0x00000000 0x0  0x50000000 0x0  0x00F00000>,
+				 <0x02000000 0x00 0x58000000 0x0  0x58000000 0x0  0x28000000>,
+				 <0x03000000 0x10 0x00000000 0x10 0x00000000 0x10 0x00000000>;
+	};
+
+    psci {
+        compatible = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
+        method = "smc";
+    };
+
+	clocks {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		sysclk_48mhz: clk48mhz {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <48000000>;
+		};
+		sysclk_250mhz: clk250mhz {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <250000000>;
+		};
+		sysclk_1200mhz: clk1200mhz {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <1200000000>;
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		
+		mmc0: mmc@28000000 {
+			compatible = "phytium,mci";
+			reg = <0x0 0x28000000 0x0 0x1000>;
+			clock = <0x50000000>;
+			status = "disabled";
+		};
+
+		mmc1: mmc@28001000 {
+			compatible = "phytium,mci";
+			reg = <0x0 0x28001000 0x0 0x1000>;
+			clock = <0x50000000>;
+			status = "disabled";
+		};
+
+		nand0: nand@28002000 {
+			compatible = "phytium,nfc";
+			reg = <0x0 0x28002000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		dma2: dma@28003000 {
+			compatible = "phytium,ddma";
+			reg = <0x0 0x28003000 0x0 0x1000>;
+			dma-channels = <4>;
+			status = "disabled";
+		};
+
+		dma3: dma@28004000 {
+			compatible = "phytium,ddma-bdl";
+			reg = <0x0 0x28004000 0x0 0x1000>;
+			dma-channels = <4>;
+			status = "disabled";
+		};
+
+		qspi@28008000 {
+			compatible = "phytium,qspi";
+			reg = <0x0 0x28008000 0x0     0x1000>,
+			      <0x0        0x0 0x0 0x02000000>;
+			reg-names = "qspi", "qspi_mm";
+			status = "disabled";
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+			qspi_flash@0 {
+				reg = <0>;
+				spi-rx-bus-width = <1>;
+				spi-max-frequency = <600000000>;
+			};
+		};
+
+		i2s0: i2s@28009000 {
+			compatible = "phytium,i2s";
+			reg = <0x0 0x28009000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		uart@2800d000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x0 0x2800d000 0x0 0x1000>;
+			//clock = <48000000>;
+			clock = <100000000>;
+		};
+
+		i2c0: i2c@28011000 {
+			compatible = "snps,designware-i2c";
+			reg = <0x0 0x28011000 0x0 0x1000>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+
+		i2c1: i2c@28012000 {
+			compatible = "snps,designware-i2c";
+			reg = <0x0 0x28012000 0x0 0x1000>;
+			clock = <48000000>;
+			status = "disabled";
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+			rtc@68 {
+				compatible = "dallas,ds1339";
+				reg = <0x68>;
+				status = "disabled";
+			};
+		};
+
+		i2c2: i2c@28013000 {
+			compatible = "snps,designware-i2c";
+			reg = <0x0 0x28013000 0x0 0x1000>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+		
+		pinctrl: pinctrl@32b30000 {
+			compatible = "phytium,e2000-pinctrl";
+			reg = <0x0 0x32b30020 0x0 0x2000>;	//gpio:9~147
+			bank00 = <0x0 0x0>;
+			bank01 = <0x0 0x0>;
+			bank02 = <0x0 0x0>;
+			bank03 = <0x0 0x0>;
+			bank04 = <0x0 0x0>;
+			bank05 = <0x0 0x0>;	//res:0
+			bank06 = <0x1 0x0>;	//drive:4
+			bank07 = <0x1 0x0>;	//func_sel:4
+			bank08 = <0x0 0xf>;
+			bank10 = <0x0 0x0>;
+			bank11 = <0x0 0x0>;
+			bank12 = <0x0 0x0>;
+			bank13 = <0x0 0x0>;
+			bank14 = <0x0 0x0>;
+			bank15 = <0x0 0x0>;	//res:0
+			bank16 = <0x1 0x0>;	//drive:4
+			bank17 = <0x1 0x1>;	//func_sel:5
+			bank18 = <0x0 0xff>;
+		};
+
+		gpio0: gpio@28034000 {
+			compatible = "phytium,gpio";
+			reg = <0x0 0x28034000 0x0 0x1000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			chip_label = "E2000";
+			nr-gpios = <16>;
+		};
+
+		gpio1: gpio@28035000 {
+			compatible = "phytium,gpio";
+			reg = <0x0 0x28035000 0x0 0x1000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			chip_label = "E2000";
+			nr-gpios = <16>;
+		};
+
+		gpio2: gpio@28036000 {
+			compatible = "phytium,gpio";
+			reg = <0x0 0x28036000 0x0 0x1000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			chip_label = "E2000";
+			nr-gpios = <16>;
+		};
+
+		gpio3: gpio@28037000 {
+			compatible = "phytium,gpio";
+			reg = <0x0 0x28037000 0x0 0x1000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			chip_label = "E2000";
+			nr-gpios = <16>;
+		};
+
+		gpio4: gpio@28038000 {
+			compatible = "phytium,gpio";
+			reg = <0x0 0x28038000 0x0 0x1000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			chip_label = "E2000";
+			nr-gpios = <16>;
+		};
+
+		gpio5: gpio@28039000 {
+			compatible = "phytium,gpio";
+			reg = <0x0 0x28038000 0x0 0x1000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+			chip_label = "E2000";
+			nr-gpios = <16>;
+		};
+
+		spi0: spi@2803a000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x0 0x2803a000 0x0 0x1000>;
+			spi-max-frequency = <4000000>;
+			clock = <48000000>;
+			//cs-gpio = <&portc 5 1>;
+			status = "disabled";
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi_flash@0 {
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <4000000>;
+			};
+		};
+
+		spi1: spi@2803b000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x0 0x2803b000 0x0 0x1000>;
+			spi-max-frequency = <4000000>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+
+		spi2: spi@2803c000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x0 0x2803c000 0x0 0x1000>;
+			spi-max-frequency = <4000000>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+
+		spi3: spi@2803d000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x0 0x2803d000 0x0 0x1000>;
+			spi-max-frequency = <4000000>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+
+		watchdog0: watchdog@28040000 {
+			compatible = "arm,sbsa-gwdt";
+			reg = <0x0 0x28040000 0x0 0x1000>;
+			timeout-sec = <30>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+
+		watchdog1: watchdog@28042000 {
+			compatible = "arm,sbsa-gwdt";
+			reg = <0x0 0x28042000 0x0 0x1000>;
+			timeout-sec = <30>;
+			clock = <48000000>;
+			status = "disabled";
+		};
+
+		pwm0: pwm@2804a000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x2804a000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm1: pwm@2804b000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x2804b000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm2: pwm@2804c000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x2804c000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm3: pwm@2804d000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x2804d000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm4: pwm@2804e000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x2804e000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm5: pwm@2804f000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x2804f000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm6: pwm@28050000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x28050000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		pwm7: pwm@28051000 {
+			compatible = "phytium,pwm";
+			reg = <0x0 0x28051000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		adc0: adc@2807b000 {
+			compatible = "phytium,adc";
+			reg = <0x0 0x2807b000 0x0 0x1000>;
+			clocks = <&sysclk_48mhz>;
+			status = "disabled";
+		};
+
+		adc1: adc@2807c000 {
+			compatible = "phytium,adc";
+			reg = <0x0 0x2807c000 0x0 0x1000>;
+			clocks = <&sysclk_48mhz>;
+			status = "disabled";
+		};
+
+		usb2otg0: usb@31800000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x31800000 0x0 0x80000>;
+			status = "disabled";
+		};
+
+		usb2otg1: usb@31880000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x31880000 0x0 0x80000>;
+			status = "disabled";
+		};
+
+		usb2otg2: usb@31900000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x31900000 0x0 0x80000>;
+			status = "disabled";
+		};
+
+		usb0: usb3@31a00000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x31a08000 0x0 0x18000>;
+			status = "okay";
+		};
+
+		usb1: usb3@31a20000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x31a28000 0x0 0x18000>;
+			status = "okay";
+		};
+
+		usb2: usb2@32800000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x32800000 0x0 0x40000>;
+			status = "disabled";
+		};
+
+		usb3: usb2@32840000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x32840000 0x0 0x40000>;
+			status = "disabled";
+		};
+
+		sata0: sata@31a40000 {
+			compatible = "phytium_ahci";
+			reg = <0x0 0x31a40000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		sata1: sata@32014000 {
+			compatible = "phytium_ahci";
+			reg = <0x0 0x32014000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		dc0: dc@32000000 {
+			compatible = "phytium,dc";
+			reg = <0x0 0x32000000 0x0 0x6000>;
+			status = "disabled";
+		};
+
+		macb0: ethernet@3200c000 {
+			compatible = "cdns,phytium-gem";
+			reg = <0x0 0x3200c000 0x0 0x2000>;
+            clock-names = "pclk", "hclk", "tx_clk", "tsu_clk";
+            clocks = <&sysclk_48mhz>, <&sysclk_48mhz>, <&sysclk_48mhz>, <&sysclk_250mhz>;
+			magic-packet;
+			support-tsn;
+			status = "disabled";
+                	fixed-link{
+                        	speed = <10000>;
+                        	full-duplex;
+                	};
+		};
+
+		macb1: ethernet@3200e000 {
+			compatible = "cdns,phytium-gem";
+			reg = <0x0 0x3200e000 0x0 0x2000>;
+			clock-names = "pclk", "hclk", "tx_clk", "tsu_clk";
+			clocks = <&sysclk_48mhz>, <&sysclk_48mhz>, <&sysclk_48mhz>, <&sysclk_48mhz>;
+			magic-packet;
+			status = "disabled";
+                	fixed-link{
+                        	speed = <10000>;
+                       		full-duplex;
+			};
+		};
+
+		macb2: ethernet@32010000 {
+			compatible = "cdns,phytium-gem";
+			reg = <0x0 0x32010000 0x0 0x2000>;
+			clock-names = "pclk", "hclk", "tx_clk", "tsu_clk";
+			clocks = <&sysclk_48mhz>, <&sysclk_48mhz>, <&sysclk_48mhz>, <&sysclk_48mhz>;
+			magic-packet;
+			status = "disabled";
+			fixed-link{
+				speed = <1000>;
+				full-duplex;
+			};
+		};
+
+		macb3: ethernet@32012000 {
+			compatible = "cdns,phytium-gem";
+			reg = <0x0 0x32012000 0x0 0x2000>;
+			clock = <48000000>;
+			status = "okay";
+			phy-mode = "sgmii";
+			fixed-link{
+				speed = <1000>;
+				full-duplex;
+			};
+		};
+
+		/* GDMA */
+		dma0: dma@32b34000 {
+			compatible = "phytium,gdma";
+			reg = <0x0 0x32b34000 0x0 0x1000>;
+			clocks = <&sysclk_48mhz>;
+			dma-channels = <8>;
+			status = "disabled";
+		};
+
+		dma1: dma@32b35000 {
+			compatible = "phytium,gdma";
+			reg = <0x0 0x32b35000 0x0 0x1000>;
+			clocks = <&sysclk_48mhz>;
+			dma-channels = <8>;
+			status = "disabled";
+		};
+	};
+	
+};
